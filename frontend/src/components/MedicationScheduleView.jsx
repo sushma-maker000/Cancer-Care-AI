@@ -379,46 +379,60 @@ export default function MedicationScheduleView({
           </div>
         </div>
 
-        {/* Refill & Supply Inventory (§16) (1 Col) */}
+        {/* Refill & Supply Inventory (1 Col) */}
         <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Package className="w-5 h-5 text-indigo-600" />
               <h3 className="text-sm font-bold font-['Outfit'] text-slate-900">
-                Medication Inventory (§16)
+                Medication Inventory
               </h3>
             </div>
           </div>
 
           {inventory && inventory.length > 0 ? (
             <div className="space-y-3">
-              {inventory.map((inv) => (
-                <div
-                  key={inv.id}
-                  className={`p-3 rounded-xl border ${
-                    inv.refill_alert_active
-                      ? 'border-amber-300 bg-amber-50'
-                      : 'border-slate-200 bg-slate-50'
-                  } space-y-1`}
-                >
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-800">
-                    <span>{inv.medication_name}</span>
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] ${
-                        inv.refill_alert_active
-                          ? 'bg-amber-200 text-amber-900 animate-pulse'
-                          : 'bg-emerald-100 text-emerald-800'
-                      }`}
-                    >
-                      {inv.current_quantity} remaining
-                    </span>
+              {inventory.map((inv) => {
+                const averageDailyUnits = inv.average_daily_units || 2;
+                const daysRemaining = Math.max(0, Math.round(inv.current_quantity / averageDailyUnits));
+                const refillThresholdDays = 5;
+                const needsRefill = daysRemaining <= refillThresholdDays;
+
+                return (
+                  <div
+                    key={inv.id}
+                    className={`p-3 rounded-xl border ${
+                      needsRefill
+                        ? 'border-amber-300 bg-amber-50'
+                        : 'border-slate-200 bg-slate-50'
+                    } space-y-2`}
+                  >
+                    <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+                      <span>{inv.medication_name || 'Oral Medication'}</span>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] ${
+                          needsRefill
+                            ? 'bg-amber-200 text-amber-900'
+                            : 'bg-emerald-100 text-emerald-800'
+                        }`}
+                      >
+                        {inv.current_quantity} units remaining
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px] text-slate-500">
+                      <span>Days left: ~{daysRemaining} days</span>
+                      <span>Daily average: {averageDailyUnits} units</span>
+                    </div>
+
+                    {needsRefill && (
+                      <div className="text-[10px] text-amber-800 font-medium bg-amber-100/50 p-2 rounded-lg border border-amber-200">
+                        ⚠️ Your medicine may run out in approximately {daysRemaining} days. Do not automatically order medication.
+                      </div>
+                    )}
                   </div>
-                  <div className="flex items-center justify-between text-[11px] text-slate-500">
-                    <span>Days left: ~{inv.days_remaining} d</span>
-                    <span>Refill at: &le;{inv.refill_threshold}</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <p className="text-xs text-slate-500">Inventory is tracked for oral medications.</p>
@@ -426,76 +440,74 @@ export default function MedicationScheduleView({
         </div>
       </div>
 
-      {/* Cycle Dose Event Timeline */}
+      {/* Today's Dose Events List */}
       <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Calendar className="w-5 h-5 text-sky-600" />
             <h3 className="text-sm font-bold font-['Outfit'] text-slate-900">
-              21-Day Cycle Dose Timeline ({doseEvents.length} Events)
+              Today's Scheduled Medication Alarms
             </h3>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
-            <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
-              <tr>
-                <th className="p-3">Scheduled Time</th>
-                <th className="p-3">Medication</th>
-                <th className="p-3">Dose & Route</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Support Notes</th>
-                <th className="p-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {doseEvents.slice(0, 10).map((ev) => (
-                <tr key={ev.id} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="p-3 font-mono font-medium text-slate-700">
-                    {new Date(ev.scheduled_time).toLocaleString([], {
-                      month: 'short',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </td>
-                  <td className="p-3 font-semibold text-slate-900">{ev.medication_name}</td>
-                  <td className="p-3 text-slate-600">{ev.dose}</td>
-                  <td className="p-3">
+        <div className="space-y-2">
+          {doseEvents && doseEvents.length > 0 ? (
+            doseEvents.slice(0, 5).map((ev) => (
+              <div
+                key={ev.id}
+                className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between gap-3 text-xs"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-slate-900">{ev.medication_name}</span>
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
                         ev.status === 'taken'
                           ? 'bg-emerald-100 text-emerald-800'
                           : ev.status === 'missed'
                           ? 'bg-rose-100 text-rose-800'
-                          : ev.status === 'snoozed' || ev.status === 'busy'
-                          ? 'bg-amber-100 text-amber-800'
-                          : 'bg-sky-100 text-sky-800'
+                          : 'bg-amber-100 text-amber-850'
                       }`}
                     >
                       {ev.status.toUpperCase()}
                     </span>
-                  </td>
-                  <td className="p-3 text-slate-500 italic max-w-xs truncate">
-                    {ev.support_notes || '—'}
-                  </td>
-                  <td className="p-3 text-right">
-                    {ev.status === 'scheduled' || ev.status === 'snoozed' ? (
+                  </div>
+                  <div className="text-slate-500 text-[10px]">
+                    Scheduled: {new Date(ev.scheduled_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                  {ev.support_notes && (
+                    <div className="text-[10px] text-slate-500 italic">
+                      💡 {ev.support_notes}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  {(ev.status === 'scheduled' || ev.status === 'snoozed') ? (
+                    <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => onDoseAction(ev.id, { action: 'taken' })}
-                        className="px-2.5 py-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors cursor-pointer"
+                        className="px-2.5 py-1.5 font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg cursor-pointer"
                       >
-                        Mark Taken
+                        Confirm Take
                       </button>
-                    ) : (
-                      <span className="text-[11px] text-slate-400">Completed</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      <button
+                        onClick={() => onDoseAction(ev.id, { action: 'snooze', snooze_minutes: 15 })}
+                        className="px-2 py-1.5 font-semibold text-slate-700 bg-slate-200 hover:bg-slate-300 rounded-lg cursor-pointer"
+                      >
+                        Snooze
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="text-[10px] text-slate-400 font-medium">Completed</span>
+                  )}
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-xs text-slate-500">No scheduled medication alarms for today.</p>
+          )}
         </div>
       </div>
     </div>

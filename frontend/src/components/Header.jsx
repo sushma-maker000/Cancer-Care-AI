@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, AlertTriangle, Globe, Sparkles, UserPlus, HeartHandshake } from 'lucide-react';
+import { Shield, AlertTriangle, Globe, Sparkles, UserPlus, HeartHandshake, Monitor, Smartphone } from 'lucide-react';
 
 export default function Header({
   activeLanguage,
@@ -8,6 +8,8 @@ export default function Header({
   onQuickLoadDemo,
   loadingDemo,
   apiHealthy,
+  isMobileView,
+  onToggleLayoutView,
 }) {
   const isTamil = activeLanguage === 'Tamil';
 
@@ -89,6 +91,25 @@ export default function Header({
               {isTamil ? 'மாதிரி நோயாளி' : '1-Click Demo Patient'}
             </span>
             <span className="sm:hidden">Demo</span>
+          </button>
+
+          {/* Layout Switcher Button */}
+          <button
+            onClick={onToggleLayoutView}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg transition-colors cursor-pointer"
+            title={isMobileView ? "Switch to Wide Desktop view" : "Switch to Mobile view"}
+          >
+            {isMobileView ? (
+              <>
+                <Monitor className="w-3.5 h-3.5 text-slate-600" />
+                <span>{isTamil ? 'வலைக் காட்சி' : 'Desktop View'}</span>
+              </>
+            ) : (
+              <>
+                <Smartphone className="w-3.5 h-3.5 text-slate-600" />
+                <span>{isTamil ? 'கைப்பேசி காட்சி' : 'Mobile View'}</span>
+              </>
+            )}
           </button>
 
           {/* Onboarding Button */}
