@@ -42,6 +42,17 @@ const TRIAGE_STYLES = {
   low_concern: 'bg-white border-slate-200',
 };
 
+const renderMessageContent = (text) => {
+  if (!text) return '';
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={i} className="font-extrabold text-slate-900">{part.slice(2, -2)}</strong>;
+    }
+    return part;
+  });
+};
+
 export default function AIChatbot({ patient, activeLanguage }) {
   const [messages, setMessages] = useState([
     {
@@ -129,7 +140,7 @@ export default function AIChatbot({ patient, activeLanguage }) {
             <div className="flex items-center gap-2">
               <span className="text-base font-bold text-white font-['Outfit']">CancerCare AI Chatbot</span>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-semibold">
-                RAG Grounded (§12)
+                RAG Grounded
               </span>
             </div>
             <p className="text-xs text-sky-200">
@@ -200,7 +211,7 @@ export default function AIChatbot({ patient, activeLanguage }) {
                 )}
 
                 {/* Message content with line breaks */}
-                <p className="whitespace-pre-wrap">{msg.content}</p>
+                <p className="whitespace-pre-wrap">{renderMessageContent(msg.content)}</p>
               </div>
 
               {/* Intent + Sources footer */}

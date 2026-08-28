@@ -3,15 +3,15 @@ import { X, User, Heart, Phone, ShieldCheck, Clock, Check, Sparkles } from 'luci
 
 const INITIAL_FORM = {
   name: '',
-  age: 50,
-  gender: 'Female',
+  age: '',
+  gender: '',
   preferred_language: 'English',
-  patient_phone: '+91 98765 12345',
-  smoking_status: 'Non-smoker',
+  patient_phone: '',
+  smoking_status: '',
   alcohol_consumption: 'None',
   medical_history: '',
-  condition_or_disease: 'Invasive Ductal Carcinoma',
-  cancer_type: 'Stage IIA HER2+ Breast Cancer',
+  condition_or_disease: 'Breast Cancer',
+  cancer_type: '',
   treatment_type: 'Adjuvant treatment',
   caregiver_name: '',
   caregiver_email: '',
@@ -157,6 +157,7 @@ export default function PatientOnboardingModal({ isOpen, onClose, onSave, defaul
                   onChange={handleChange}
                   className="w-full text-sm px-3 py-2 rounded-xl border border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
                 >
+                  <option value="">Select Gender</option>
                   <option value="Female">Female</option>
                   <option value="Male">Male</option>
                   <option value="Other">Other</option>
@@ -193,6 +194,7 @@ export default function PatientOnboardingModal({ isOpen, onClose, onSave, defaul
                   onChange={handleChange}
                   className="w-full text-sm px-3 py-2 rounded-xl border border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
                 >
+                  <option value="">Select Smoking Status</option>
                   <option value="Non-smoker">Non-smoker</option>
                   <option value="Former smoker">Former smoker</option>
                   <option value="Current smoker">Current smoker</option>
@@ -209,15 +211,17 @@ export default function PatientOnboardingModal({ isOpen, onClose, onSave, defaul
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Cancer Type / Stage</label>
-                <input
-                  type="text"
+                <label className="block text-xs font-medium text-slate-700 mb-1">Cancer Type</label>
+                <select
                   name="cancer_type"
                   value={formData.cancer_type}
                   onChange={handleChange}
-                  placeholder="e.g. Stage IIA HER2+ Breast Cancer"
                   className="w-full text-sm px-3 py-2 rounded-xl border border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
-                />
+                >
+                  <option value="">Select Cancer Type</option>
+                  <option value="Breast Cancer">Breast Cancer</option>
+                  <option value="Lung Cancer">Lung Cancer</option>
+                </select>
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">Treatment Regimen</label>
