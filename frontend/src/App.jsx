@@ -5,6 +5,8 @@ import PatientOnboardingModal from './components/PatientOnboardingModal';
 import PrescriptionSection from './components/PrescriptionSection';
 import MedicationConfirmationModal from './components/MedicationConfirmationModal';
 import MedicationScheduleView from './components/MedicationScheduleView';
+import AIChatbot from './components/AIChatbot';
+
 import {
   fetchHealth,
   fetchPatients,
@@ -253,6 +255,18 @@ export default function App() {
             onDoseAction={handleDoseAction}
             activeLanguage={activeLanguage}
           />
+        </section>
+        {/* AI Chatbot — Symptom, Nutrition & Cancer Education (Milestones 6 & 7) */}
+        <section>
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold font-['Outfit'] text-slate-900">
+              AI Symptom & Education Assistant
+            </h2>
+            <p className="text-xs text-slate-500">
+              Grounded RAG chatbot with deterministic safety triage (§9, §12) — sources cited from your drug monographs and NCI nutrition guidelines.
+            </p>
+          </div>
+          <AIChatbot patient={activePatient} activeLanguage={activeLanguage} />
         </section>
       </main>
 
