@@ -33,14 +33,7 @@ Base.metadata.create_all(bind=engine)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup: init RAG index and background scheduler. Shutdown: stop scheduler."""
-    # Pre-initialize ChromaDB RAG collection on startup
-    try:
-        from app.rag.retriever import get_rag_collection
-        get_rag_collection()
-    except Exception as e:
-        print(f"[RAG INIT WARNING] {e}")
-
+    """Startup: init background scheduler. Shutdown: stop scheduler."""
     # Start background escalation scheduler
     try:
         from app.services.scheduler_service import start_scheduler
