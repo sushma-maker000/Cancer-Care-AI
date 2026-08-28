@@ -9,6 +9,8 @@ export default function Header({
   loadingDemo,
   apiHealthy,
 }) {
+  const isTamil = activeLanguage === 'Tamil';
+
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
       {/* Medical Safety Disclaimer Banner (§28) */}
@@ -16,7 +18,10 @@ export default function Header({
         <div className="flex items-center gap-2 max-w-5xl mx-auto text-center md:text-left">
           <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
           <span>
-            <strong>Medical Notice:</strong> CancerCare AI provides adherence tracking & educational support. It does not diagnose, prescribe, or replace professional oncology care. In emergencies, call your doctor immediately.
+            <strong>{isTamil ? 'மருத்துவ அறிவிப்பு:' : 'Medical Notice:'}</strong>{' '}
+            {isTamil
+              ? 'CancerCare AI மருந்து கண்காணிப்பு மற்றும் கல்வி ஆதரவை வழங்குகிறது. இது நோயைக் கண்டறிவதோ அல்லது உங்கள் மருத்துவரின் சிகிச்சையை மாற்றுவதோ இல்லை. அவசரநிலைகளில் உடனடியாக உங்கள் மருத்துவரை தொடர்பு கொள்ளவும்.'
+              : 'CancerCare AI provides adherence tracking & educational support. It does not diagnose, prescribe, or replace professional oncology care. In emergencies, call your doctor immediately.'}
           </span>
         </div>
       </div>
@@ -34,11 +39,13 @@ export default function Header({
               </span>
               <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                Guardrails Active
+                {isTamil ? 'பாதுகாப்பு விதிகளுடன்' : 'Guardrails Active'}
               </span>
             </div>
             <p className="text-[11px] text-slate-500 hidden md:block">
-              Intelligent Cancer Medication Adherence & Patient Support
+              {isTamil
+                ? 'புற்றுநோய் மருந்து கண்காணிப்பு & நோயாளி ஆதரவு அமைப்பு'
+                : 'Intelligent Cancer Medication Adherence & Patient Support'}
             </p>
           </div>
         </div>
@@ -78,7 +85,9 @@ export default function Header({
             title="Load Sarah Jenkins (Breast Cancer Demo Patient)"
           >
             <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-            <span className="hidden sm:inline">1-Click Demo Patient</span>
+            <span className="hidden sm:inline">
+              {isTamil ? 'மாதிரி நோயாளி' : '1-Click Demo Patient'}
+            </span>
             <span className="sm:hidden">Demo</span>
           </button>
 
@@ -89,7 +98,7 @@ export default function Header({
             className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 rounded-lg shadow-sm hover:shadow transition-all cursor-pointer"
           >
             <UserPlus className="w-3.5 h-3.5" />
-            <span>New Patient</span>
+            <span>{isTamil ? 'புதிய நோயாளி' : 'New Patient'}</span>
           </button>
         </div>
       </div>

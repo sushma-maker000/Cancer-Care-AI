@@ -198,15 +198,21 @@ export default function App() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-2xl font-bold font-['Outfit'] text-slate-900">
-                Patient Profile & Oncology Care
+                {activeLanguage === 'Tamil'
+                  ? 'நோயாளி சுயவிவரம் & புற்றுநோய் சிகிச்சை'
+                  : 'Patient Profile & Oncology Care'}
               </h1>
               <p className="text-xs text-slate-500">
-                Clinical diagnosis, TC regimen schedule, and caregiver safety configuration (§3, §8).
+                {activeLanguage === 'Tamil'
+                  ? 'மருத்துவ நோயறிதல், TC சிகிச்சை திட்ட அட்டவணை, மற்றும் பராமரிப்பாளர் அமைப்புகள் (§3, §8).'
+                  : 'Clinical diagnosis, TC regimen schedule, and caregiver safety configuration (§3, §8).'}
               </p>
             </div>
             {patients.length > 1 && (
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500 font-medium">Switch Patient:</span>
+                <span className="text-xs text-slate-500 font-medium">
+                  {activeLanguage === 'Tamil' ? 'நோயாளியை மாற்று:' : 'Switch Patient:'}
+                </span>
                 <select
                   value={activePatient?.id || ''}
                   onChange={(e) => {
@@ -230,6 +236,7 @@ export default function App() {
 
           <PatientProfileCard
             patient={activePatient}
+            activeLanguage={activeLanguage}
             onEdit={() => setIsOnboardingOpen(true)}
           />
         </section>
@@ -238,6 +245,7 @@ export default function App() {
         <section>
           <PrescriptionSection
             patient={activePatient}
+            activeLanguage={activeLanguage}
             onExtractionComplete={handleExtractionComplete}
             isProcessing={isProcessingRx}
             setIsProcessing={setIsProcessingRx}
@@ -260,10 +268,14 @@ export default function App() {
         <section>
           <div className="mb-4">
             <h2 className="text-2xl font-bold font-['Outfit'] text-slate-900">
-              AI Symptom & Education Assistant
+              {activeLanguage === 'Tamil'
+                ? 'செயற்கை நுண்ணறிவு பக்கவிளைவு & ஊட்டச்சத்து உதவி'
+                : 'AI Symptom & Education Assistant'}
             </h2>
             <p className="text-xs text-slate-500">
-              Grounded RAG chatbot with deterministic safety triage (§9, §12) — sources cited from your drug monographs and NCI nutrition guidelines.
+              {activeLanguage === 'Tamil'
+                ? 'உங்கள் மருந்து வழிகாட்டிகள் மற்றும் NCI ஊட்டச்சத்து குறிப்புகள் ఆధారமாக பதிலளிக்கும்AI உதவி (§9, §12).'
+                : 'Grounded RAG chatbot with deterministic safety triage (§9, §12) — sources cited from your drug monographs and NCI nutrition guidelines.'}
             </p>
           </div>
           <AIChatbot patient={activePatient} activeLanguage={activeLanguage} />

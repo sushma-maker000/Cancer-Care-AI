@@ -6,6 +6,7 @@ const INITIAL_FORM = {
   age: 50,
   gender: 'Female',
   preferred_language: 'English',
+  patient_phone: '+91 98765 12345',
   smoking_status: 'Non-smoker',
   alcohol_consumption: 'None',
   medical_history: '',
@@ -43,6 +44,7 @@ export default function PatientOnboardingModal({ isOpen, onClose, onSave, defaul
       age: 52,
       gender: 'Female',
       preferred_language: defaultLanguage,
+      patient_phone: '+91 98765 12345',
       smoking_status: 'Non-smoker',
       alcohol_consumption: 'None',
       medical_history: 'Hypertension (managed on Amlodipine 5mg), no known drug allergies.',
@@ -159,6 +161,17 @@ export default function PatientOnboardingModal({ isOpen, onClose, onSave, defaul
                   <option value="Male">Male</option>
                   <option value="Other">Other</option>
                 </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Patient Phone Number</label>
+                <input
+                  type="text"
+                  name="patient_phone"
+                  value={formData.patient_phone || ''}
+                  onChange={handleChange}
+                  placeholder="e.g. +91 98765 12345"
+                  className="w-full text-sm px-3 py-2 rounded-xl border border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
+                />
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">Preferred Language</label>

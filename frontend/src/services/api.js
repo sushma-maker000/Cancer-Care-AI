@@ -143,3 +143,15 @@ export async function fetchAppointments(patientId) {
   if (!res.ok) throw new Error('Failed to fetch appointments');
   return res.json();
 }
+
+export async function triggerDemoEscalation(eventId) {
+  const res = await fetch(`${API_BASE_URL}/caregiver/escalate/demo/${eventId}`, {
+    method: 'POST',
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to trigger demo escalation');
+  }
+  return res.json();
+}
+

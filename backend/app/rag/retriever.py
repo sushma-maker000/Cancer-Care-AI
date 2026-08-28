@@ -43,10 +43,10 @@ def get_rag_collection():
 
     # Ingest docs if collection is empty
     if _collection.count() == 0:
-        print("📚 RAG: Indexing knowledge base documents...")
+        print("[RAG] Indexing knowledge base documents...")
         _ingest_knowledge_base()
     else:
-        print(f"📚 RAG: Using existing index with {_collection.count()} chunks.")
+        print(f"[RAG] Using existing index with {_collection.count()} chunks.")
 
     return _collection
 
@@ -63,7 +63,8 @@ def _ingest_knowledge_base():
         documents=documents,
         metadatas=metadatas,
     )
-    print(f"✅ RAG: Indexed {len(KNOWLEDGE_CHUNKS)} knowledge chunks.")
+    print(f"[RAG] Indexed {len(KNOWLEDGE_CHUNKS)} knowledge chunks.")
+
 
 
 def retrieve_relevant_chunks(

@@ -15,10 +15,12 @@ import { uploadPrescriptionFile, loadSamplePrescription } from '../services/api'
 
 export default function PrescriptionSection({
   patient,
+  activeLanguage,
   onExtractionComplete,
   isProcessing,
   setIsProcessing,
 }) {
+  const isTamil = activeLanguage === 'Tamil';
   const [dragActive, setDragActive] = useState(false);
   const [showRawOcr, setShowRawOcr] = useState(false);
   const [lastUploaded, setLastUploaded] = useState(null);
@@ -46,7 +48,7 @@ export default function PrescriptionSection({
 
   const handleFileUpload = async (file) => {
     if (!patient) {
-      setErrorMessage('Please select or create a patient profile first.');
+      setErrorMessage(isTamil ? 'தயவுசெய்து ஒரு நோயாளியைத் தேர்ந்தெடுக்கவும்.' : 'Please select or create a patient profile first.');
       return;
     }
     setErrorMessage(null);
@@ -64,7 +66,7 @@ export default function PrescriptionSection({
 
   const handleLoadSample = async () => {
     if (!patient) {
-      setErrorMessage('Please select or create a patient profile first.');
+      setErrorMessage(isTamil ? 'தயவுசெய்து ஒரு நோயாளியைத் தேர்ந்தெடுக்கவும்.' : 'Please select or create a patient profile first.');
       return;
     }
     setErrorMessage(null);
@@ -90,10 +92,12 @@ export default function PrescriptionSection({
             </div>
             <div>
               <h2 className="text-lg font-bold font-['Outfit'] text-slate-900">
-                Prescription Ingestion & Extraction (§4)
+                {isTamil ? 'மருத்துவச்சீட்டு பதிவேற்றம் & பகுப்பாய்வு (§4)' : 'Prescription Ingestion & Extraction (§4)'}
               </h2>
               <p className="text-xs text-slate-500">
-                Upload oncology prescription (PDF/Image) for Mistral OCR & structured extraction.
+                {isTamil
+                  ? 'உங்கள் மருத்துவச்சீட்டை (PDF/Image) பதிவேற்றி தானியங்கி மருந்து அட்டவணையைப் பெறவும்.'
+                  : 'Upload oncology prescription (PDF/Image) for Mistral OCR & structured extraction.'}
               </p>
             </div>
           </div>
@@ -108,7 +112,7 @@ export default function PrescriptionSection({
           className="flex items-center justify-center gap-2 px-4 py-2 text-xs font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 rounded-xl transition-all cursor-pointer shadow-xs shrink-0"
         >
           <Sparkles className="w-4 h-4 text-sky-600" />
-          <span>Load Apex Oncology Sample (4 Meds)</span>
+          <span>{isTamil ? 'மாதிரி மருத்துவச்சீட்டை ஏற்று (4 மருந்துகள்)' : 'Load Apex Oncology Sample (4 Meds)'}</span>
         </button>
       </div>
 
@@ -150,11 +154,13 @@ export default function PrescriptionSection({
 
         <h3 className="text-sm font-semibold text-slate-800">
           {isProcessing
-            ? 'Extracting Medications with Mistral AI...'
-            : 'Click to upload or drag & drop prescription'}
+            ? (isTamil ? 'Mistral AI மூலம் மருந்துகள் பெறப்படுகின்றன...' : 'Extracting Medications with Mistral AI...')
+            : (isTamil ? 'மருத்துவச்சீட்டை பதிவேற்ற கிளிக் செய்யவும் அல்லது இங்கே இழுத்து போடவும்' : 'Click to upload or drag & drop prescription')}
         </h3>
         <p className="text-xs text-slate-500 mt-1">
-          Supports PDF, JPG, PNG • Handled securely with human-in-the-loop review
+          {isTamil
+            ? 'PDF, JPG, PNG ஆதரிக்கப்படும் • பாதுகாப்பான மனித ஆய்வுக்கு உட்பட்டது'
+            : 'Supports PDF, JPG, PNG • Handled securely with human-in-the-loop review'}
         </p>
       </div>
 

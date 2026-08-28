@@ -13,7 +13,10 @@ import {
   TrendingUp,
   HelpCircle,
   ShieldAlert,
+  Send,
 } from 'lucide-react';
+import { triggerDemoEscalation } from '../services/api';
+
 
 export default function MedicationScheduleView({
   medications,
@@ -26,6 +29,26 @@ export default function MedicationScheduleView({
 }) {
   const [selectedEventForReason, setSelectedEventForReason] = useState(null);
   const [selectedEventForBusy, setSelectedEventForBusy] = useState(null);
+  const [escalationStatus, setEscalationStatus] = useState(null);
+
+  const handleTestEscalation = async (eventId) => {
+    try {
+      setEscalationStatus({ loading: true, message: 'Sending Telegram caregiver alert...' });
+      const res = await triggerDemoEscalation(eventId);
+      setEscalationStatus({
+        success: true,
+        message: `Alert sent! ${res.message}`,
+      });
+      setTimeout(() => setEscalationStatus(null), 8000);
+    } catch (err) {
+      setEscalationStatus({
+        error: true,
+        message: `Notification triggered (In-App). ${err.message}`,
+      });
+      setTimeout(() => setEscalationStatus(null), 8000);
+    }
+  };
+
 
   // Find the first scheduled or snoozed event to display as the active alarm
   const activeAlarmEvent = doseEvents.find(
@@ -172,47 +195,80 @@ export default function MedicationScheduleView({
                     </div>
                   </div>
                 ) : (
-                  /* Action Buttons Grid (§6) */
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-2">
-                    <button
-                      id="action-taken-btn"
-                      onClick={() => handleActionClick(activeAlarmEvent.id, 'taken')}
-                      className="px-3 py-2 text-xs font-bold text-emerald-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl transition-all shadow-md flex items-center justify-center gap-1 cursor-pointer"
-                    >
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>{activeLanguage === 'Tamil' ? 'எடுத்துக்கொண்டேன்' : 'I took it'}</span>
-                    </button>
+                  <div className="space-y-2 pt-2">
+                    {/* Action Buttons Grid (§6) */}
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                      <button
+                        id="action-taken-btn"
+                        onClick={() => handleActionClick(activeAlarmEvent.id, 'taken')}
+                        className="px-3 py-2 text-xs font-bold text-emerald-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl transition-all shadow-md flex items-center justify-center gap-1 cursor-pointer"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>{activeLanguage === 'Tamil' ? 'எடுத்துக்கொண்டேன்' : 'I took it'}</span>
+                      </button>
 
-                    <button
-                      onClick={() => handleActionClick(activeAlarmEvent.id, 'snooze')}
-                      className="px-3 py-2 text-xs font-semibold text-white bg-white/15 hover:bg-white/25 rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer"
-                    >
-                      <Clock className="w-3.5 h-3.5" />
-                      <span>15m Snooze</span>
-                    </button>
+                      <button
+                        onClick={() => handleActionClick(activeAlarmEvent.id, 'snooze')}
+                        className="px-3 py-2 text-xs font-semibold text-white bg-white/15 hover:bg-white/25 rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer"
+                      >
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>15m Snooze</span>
+                      </button>
 
-                    <button
-                      onClick={() => handleActionClick(activeAlarmEvent.id, 'busy')}
-                      className="px-3 py-2 text-xs font-semibold text-white bg-white/15 hover:bg-white/25 rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer"
-                    >
-                      <span>I'm busy</span>
-                    </button>
+                      <button
+                        onClick={() => handleActionClick(activeAlarmEvent.id, 'busy')}
+                        className="px-3 py-2 text-xs font-semibold text-white bg-white/15 hover:bg-white/25 rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer"
+                      >
+                        <span>I'm busy</span>
+                      </button>
 
-                    <button
-                      onClick={() => handleActionClick(activeAlarmEvent.id, 'missed')}
-                      className="px-3 py-2 text-xs font-semibold text-rose-200 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer"
-                    >
-                      <span>I missed it</span>
-                    </button>
+                      <button
+                        onClick={() => handleActionClick(activeAlarmEvent.id, 'missed')}
+                        className="px-3 py-2 text-xs font-semibold text-rose-200 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer"
+                      >
+                        <span>I missed it</span>
+                      </button>
 
-                    <button
-                      onClick={() => handleActionClick(activeAlarmEvent.id, 'help')}
-                      className="px-3 py-2 text-xs font-semibold text-amber-200 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer"
-                    >
-                      <HelpCircle className="w-3.5 h-3.5" />
-                      <span>Need help</span>
-                    </button>
+                      <button
+                        onClick={() => handleActionClick(activeAlarmEvent.id, 'help')}
+                        className="px-3 py-2 text-xs font-semibold text-amber-200 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer"
+                      >
+                        <HelpCircle className="w-3.5 h-3.5" />
+                        <span>Need help</span>
+                      </button>
+                    </div>
+
+                    {/* Instant Telegram Caregiver Notification Trigger Button (§8 Demo) */}
+                    <div className="pt-1 flex items-center justify-between">
+                      <button
+                        onClick={() => handleTestEscalation(activeAlarmEvent.id)}
+                        id="test-telegram-btn"
+                        className="text-[11px] font-semibold text-sky-200 bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/30 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer"
+                      >
+                        <Send className="w-3.5 h-3.5 text-sky-300" />
+                        <span>⚡ Test Instant Caregiver Escalation (Telegram / In-App)</span>
+                      </button>
+                      <span className="text-[10px] text-slate-300">
+                        Simulates no-response escalation (§8)
+                      </span>
+                    </div>
+
+                    {escalationStatus && (
+                      <div
+                        className={`p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 ${
+                          escalationStatus.success
+                            ? 'bg-emerald-500/20 text-emerald-200 border border-emerald-500/30'
+                            : escalationStatus.error
+                            ? 'bg-amber-500/20 text-amber-200 border border-amber-500/30'
+                            : 'bg-white/10 text-white'
+                        }`}
+                      >
+                        <ShieldAlert className="w-4 h-4 shrink-0" />
+                        <span>{escalationStatus.message}</span>
+                      </div>
+                    )}
                   </div>
+
                 )}
               </div>
             ) : (

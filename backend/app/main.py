@@ -1,4 +1,5 @@
 import os
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -11,10 +12,38 @@ load_dotenv()
 # Initialize DB tables
 Base.metadata.create_all(bind=engine)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Startup: init RAG index and background scheduler. Shutdown: stop scheduler."""
+    # Pre-initialize ChromaDB RAG collection on startup
+    try:
+        from app.rag.retriever import get_rag_collection
+        get_rag_collection()
+    except Exception as e:
+        print(f"[RAG INIT WARNING] {e}")
+
+    # Start background escalation scheduler
+    try:
+        from app.services.scheduler_service import start_scheduler
+        start_scheduler()
+    except Exception as e:
+        print(f"[SCHEDULER WARNING] {e}")
+
+    yield
+
+    # Shutdown
+    try:
+        from app.services.scheduler_service import stop_scheduler
+        stop_scheduler()
+    except Exception:
+        pass
+
 app = FastAPI(
     title="CancerCare AI — Backend API",
     description="Intelligent cancer medication adherence, safety triage & patient-support assistant.",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 # Configure CORS for Vite React frontend

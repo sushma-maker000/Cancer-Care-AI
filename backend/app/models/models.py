@@ -22,6 +22,7 @@ class Patient(Base):
     age = Column(Integer, nullable=False)
     gender = Column(String(50), nullable=False)
     preferred_language = Column(String(50), default="English")
+    patient_phone = Column(String(50), nullable=True, default="+91 98765 12345")
     smoking_status = Column(String(50), default="Non-smoker")
     alcohol_consumption = Column(String(50), default="None")
     medical_history = Column(Text, default="")

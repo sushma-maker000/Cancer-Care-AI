@@ -73,6 +73,7 @@ def seed_synthetic_patient(language: str = "English", db: Session = Depends(get_
         age=52,
         gender="Female",
         preferred_language=language,
+        patient_phone="+91 98765 12345",
         smoking_status="Non-smoker",
         alcohol_consumption="None",
         medical_history="Mild Hypertension (diagnosed 2020), no prior drug allergies.",

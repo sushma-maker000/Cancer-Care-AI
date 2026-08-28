@@ -8,6 +8,7 @@ class PatientBase(BaseModel):
     age: int = Field(..., ge=1, le=120, example=52)
     gender: str = Field(..., example="Female")
     preferred_language: str = Field(default="English", example="English")
+    patient_phone: Optional[str] = Field(default="+91 98765 12345", example="+91 98765 12345")
     smoking_status: str = Field(default="Non-smoker", example="Non-smoker")
     alcohol_consumption: str = Field(default="None", example="None")
     medical_history: Optional[str] = Field(default="", example="Hypertension (controlled)")
@@ -31,6 +32,7 @@ class PatientUpdate(BaseModel):
     age: Optional[int] = None
     gender: Optional[str] = None
     preferred_language: Optional[str] = None
+    patient_phone: Optional[str] = None
     smoking_status: Optional[str] = None
     alcohol_consumption: Optional[str] = None
     medical_history: Optional[str] = None
