@@ -2,24 +2,29 @@ import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import PatientProfileCard from './components/PatientProfileCard';
 import PatientOnboardingModal from './components/PatientOnboardingModal';
+import PrescriptionSection from './components/PrescriptionSection';
+import MedicationConfirmationModal from './components/MedicationConfirmationModal';
+import MedicationScheduleView from './components/MedicationScheduleView';
 import {
   fetchHealth,
   fetchPatients,
   createPatient,
   updatePatient,
   seedSyntheticPatient,
+  confirmPrescription,
+  fetchPatientMedications,
+  fetchPatientDoseEvents,
+  recordDoseAction,
+  fetchAdherence,
+  fetchInventory,
+  fetchAppointments,
 } from './services/api';
 import {
-  CheckCircle2,
-  FileText,
-  Clock,
-  ShieldAlert,
-  BookOpen,
-  Volume2,
-  Package,
   Layers,
-  ArrowRight,
   Sparkles,
+  Play,
+  RotateCcw,
+  Zap,
 } from 'lucide-react';
 
 export default function App() {
@@ -27,12 +32,22 @@ export default function App() {
   const [patients, setPatients] = useState([]);
   const [activePatient, setActivePatient] = useState(null);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const [prescriptionData, setPrescriptionData] = useState(null);
+
+  // Regimen & Adherence State
+  const [medications, setMedications] = useState([]);
+  const [doseEvents, setDoseEvents] = useState([]);
+  const [adherence, setAdherence] = useState(null);
+  const [inventory, setInventory] = useState([]);
+  const [appointments, setAppointments] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [loadingDemo, setLoadingDemo] = useState(false);
+  const [isProcessingRx, setIsProcessingRx] = useState(false);
   const [apiHealthy, setApiHealthy] = useState(true);
   const [statusMessage, setStatusMessage] = useState(null);
 
-  // Load initial data
   useEffect(() => {
     loadInitialState();
   }, []);
@@ -46,13 +61,15 @@ export default function App() {
       const patientList = await fetchPatients();
       setPatients(patientList);
       if (patientList.length > 0) {
-        setActivePatient(patientList[0]);
-        setActiveLanguage(patientList[0].preferred_language || 'English');
+        const p = patientList[0];
+        setActivePatient(p);
+        setActiveLanguage(p.preferred_language || 'English');
+        await refreshPatientData(p.id);
       } else {
-        // Automatically seed synthetic demo patient for instant out-of-the-box readiness
         const demo = await seedSyntheticPatient('English');
         setPatients([demo]);
         setActivePatient(demo);
+        await refreshPatientData(demo.id);
       }
     } catch (err) {
       console.error('API Error:', err);
@@ -62,14 +79,32 @@ export default function App() {
     }
   };
 
+  const refreshPatientData = async (patientId) => {
+    try {
+      const [meds, events, adh, inv, appts] = await Promise.all([
+        fetchPatientMedications(patientId),
+        fetchPatientDoseEvents(patientId),
+        fetchAdherence(patientId),
+        fetchInventory(patientId),
+        fetchAppointments(patientId),
+      ]);
+      setMedications(meds);
+      setDoseEvents(events);
+      setAdherence(adh);
+      setInventory(inv);
+      setAppointments(appts);
+    } catch (err) {
+      console.error('Error refreshing patient regimen data:', err);
+    }
+  };
+
   const handleLanguageChange = async (lang) => {
     setActiveLanguage(lang);
     if (activePatient) {
       try {
         const updated = await updatePatient(activePatient.id, { preferred_language: lang });
         setActivePatient(updated);
-        setStatusMessage(`Language switched to ${lang === 'Tamil' ? 'தமிழ் (Tamil)' : 'English'}`);
-        setTimeout(() => setStatusMessage(null), 3000);
+        showToast(`Language switched to ${lang === 'Tamil' ? 'தமிழ் (Tamil)' : 'English'}`);
       } catch (err) {
         console.error('Failed to update language:', err);
       }
@@ -83,8 +118,8 @@ export default function App() {
       const list = await fetchPatients();
       setPatients(list);
       setActivePatient(demo);
-      setStatusMessage('Loaded Sarah Jenkins synthetic demo profile!');
-      setTimeout(() => setStatusMessage(null), 3500);
+      await refreshPatientData(demo.id);
+      showToast('Loaded Sarah Jenkins synthetic demo profile!');
     } catch (err) {
       console.error('Demo loading failed:', err);
     } finally {
@@ -98,7 +133,39 @@ export default function App() {
     setPatients(list);
     setActivePatient(created);
     setActiveLanguage(created.preferred_language || 'English');
-    setStatusMessage(`Created profile for ${created.name}`);
+    await refreshPatientData(created.id);
+    showToast(`Created profile for ${created.name}`);
+  };
+
+  const handleExtractionComplete = (rxResponse) => {
+    setPrescriptionData(rxResponse);
+    setIsConfirmationOpen(true);
+  };
+
+  const handleConfirmPrescription = async (prescriptionId, confirmedMeds, startDate) => {
+    const result = await confirmPrescription(prescriptionId, confirmedMeds, startDate);
+    await refreshPatientData(activePatient.id);
+    showToast('Prescription confirmed! 21-Day chemotherapy cycle activated.');
+  };
+
+  const handleDoseAction = async (eventId, actionData) => {
+    try {
+      await recordDoseAction(eventId, actionData);
+      await refreshPatientData(activePatient.id);
+      if (actionData.action === 'taken') {
+        showToast('Dose confirmed! Inventory updated & adherence recorded.');
+      } else if (actionData.action === 'missed') {
+        showToast('Missed dose logged. Supportive coaching advice provided.');
+      } else if (actionData.action === 'snooze' || actionData.action === 'busy') {
+        showToast(`Reminder snoozed for ${actionData.snooze_minutes || 15} minutes.`);
+      }
+    } catch (err) {
+      console.error('Error executing dose action:', err);
+    }
+  };
+
+  const showToast = (msg) => {
+    setStatusMessage(msg);
     setTimeout(() => setStatusMessage(null), 3500);
   };
 
@@ -124,15 +191,15 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Patient Profile Section (Milestone 1 Deliverable) */}
+        {/* Patient Profile Section (Milestone 1) */}
         <section>
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-2xl font-bold font-['Outfit'] text-slate-900">
-                Patient Profile & Clinical Setup
+                Patient Profile & Oncology Care
               </h1>
               <p className="text-xs text-slate-500">
-                Foundational clinical profile, cancer regimen context, and caregiver safety configuration (§3, §8).
+                Clinical diagnosis, TC regimen schedule, and caregiver safety configuration (§3, §8).
               </p>
             </div>
             {patients.length > 1 && (
@@ -142,7 +209,10 @@ export default function App() {
                   value={activePatient?.id || ''}
                   onChange={(e) => {
                     const selected = patients.find((p) => p.id === Number(e.target.value));
-                    if (selected) setActivePatient(selected);
+                    if (selected) {
+                      setActivePatient(selected);
+                      refreshPatientData(selected.id);
+                    }
                   }}
                   className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-semibold text-slate-700"
                 >
@@ -162,73 +232,27 @@ export default function App() {
           />
         </section>
 
-        {/* Milestone Roadmap & Architecture Overview */}
-        <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <Layers className="w-5 h-5 text-indigo-600" />
-              <h2 className="text-base font-bold font-['Outfit'] text-slate-800">
-                36-Hour Hackathon Implementation Pipeline
-              </h2>
-            </div>
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-              Milestone 1 Active
-            </span>
-          </div>
+        {/* Prescription Ingestion & OCR Section (Milestone 3) */}
+        <section>
+          <PrescriptionSection
+            patient={activePatient}
+            onExtractionComplete={handleExtractionComplete}
+            isProcessing={isProcessingRx}
+            setIsProcessing={setIsProcessingRx}
+          />
+        </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* Step 1 */}
-            <div className="p-4 rounded-xl border-2 border-emerald-500/30 bg-emerald-50/40 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Milestone 1</span>
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              </div>
-              <h3 className="text-sm font-semibold text-slate-900">Patient & DB Setup</h3>
-              <p className="text-xs text-slate-600">
-                FastAPI, SQLite schema, patient onboarding & synthetic profiles.
-              </p>
-              <div className="pt-2 text-[11px] font-semibold text-emerald-700">Status: Complete ✅</div>
-            </div>
-
-            {/* Step 2 */}
-            <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/70 space-y-2 opacity-90">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Milestone 3</span>
-                <FileText className="w-4 h-4 text-slate-400" />
-              </div>
-              <h3 className="text-sm font-semibold text-slate-900">Prescription OCR</h3>
-              <p className="text-xs text-slate-600">
-                Mistral OCR / structured extraction + mandatory patient confirmation.
-              </p>
-              <div className="pt-2 text-[11px] font-semibold text-sky-600">Next Up ⏳</div>
-            </div>
-
-            {/* Step 3 */}
-            <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/70 space-y-2 opacity-75">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Milestone 4 & 5</span>
-                <Clock className="w-4 h-4 text-slate-400" />
-              </div>
-              <h3 className="text-sm font-semibold text-slate-900">Schedule & Adherence</h3>
-              <p className="text-xs text-slate-600">
-                Action-driven reminders (`Taken`, `Snooze`, `Missed`) + Adherence engine.
-              </p>
-              <div className="pt-2 text-[11px] font-medium text-slate-400">Scheduled</div>
-            </div>
-
-            {/* Step 4 */}
-            <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/70 space-y-2 opacity-75">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Milestone 6–9</span>
-                <ShieldAlert className="w-4 h-4 text-slate-400" />
-              </div>
-              <h3 className="text-sm font-semibold text-slate-900">Safety, RAG & Voice</h3>
-              <p className="text-xs text-slate-600">
-                DailyMed / NCI Knowledge RAG, Red-flag triage & Tamil voice support.
-              </p>
-              <div className="pt-2 text-[11px] font-medium text-slate-400">Scheduled</div>
-            </div>
-          </div>
+        {/* Medication Schedule & Adherence Section (Milestones 4 & 5) */}
+        <section>
+          <MedicationScheduleView
+            medications={medications}
+            doseEvents={doseEvents}
+            adherence={adherence}
+            inventory={inventory}
+            appointments={appointments}
+            onDoseAction={handleDoseAction}
+            activeLanguage={activeLanguage}
+          />
         </section>
       </main>
 
@@ -243,6 +267,14 @@ export default function App() {
         onClose={() => setIsOnboardingOpen(false)}
         onSave={handleSavePatient}
         defaultLanguage={activeLanguage}
+      />
+
+      {/* Mandatory Patient Confirmation Modal (Milestone 3) */}
+      <MedicationConfirmationModal
+        isOpen={isConfirmationOpen}
+        onClose={() => setIsConfirmationOpen(false)}
+        prescriptionData={prescriptionData}
+        onConfirm={handleConfirmPrescription}
       />
     </div>
   );

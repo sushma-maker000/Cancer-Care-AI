@@ -51,3 +51,95 @@ export async function seedSyntheticPatient(language = 'English') {
   if (!res.ok) throw new Error('Failed to seed synthetic patient');
   return res.json();
 }
+
+// Prescription APIs
+export async function uploadPrescriptionFile(patientId, file) {
+  const formData = new FormData();
+  formData.append('patient_id', patientId);
+  formData.append('file', file);
+
+  const res = await fetch(`${API_BASE_URL}/prescriptions/upload`, {
+    method: 'POST',
+    body: formData,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to upload prescription');
+  }
+  return res.json();
+}
+
+export async function loadSamplePrescription(patientId) {
+  const formData = new FormData();
+  formData.append('patient_id', patientId);
+
+  const res = await fetch(`${API_BASE_URL}/prescriptions/load-sample`, {
+    method: 'POST',
+    body: formData,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to load sample prescription');
+  }
+  return res.json();
+}
+
+export async function confirmPrescription(prescriptionId, medications, startDate = null) {
+  const res = await fetch(`${API_BASE_URL}/prescriptions/${prescriptionId}/confirm`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      medications,
+      start_date: startDate,
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to confirm prescription');
+  }
+  return res.json();
+}
+
+// Medication & Schedule APIs
+export async function fetchPatientMedications(patientId) {
+  const res = await fetch(`${API_BASE_URL}/patients/${patientId}/medications`);
+  if (!res.ok) throw new Error('Failed to fetch medications');
+  return res.json();
+}
+
+export async function fetchPatientDoseEvents(patientId) {
+  const res = await fetch(`${API_BASE_URL}/patients/${patientId}/dose-events`);
+  if (!res.ok) throw new Error('Failed to fetch dose events');
+  return res.json();
+}
+
+export async function recordDoseAction(eventId, actionData) {
+  const res = await fetch(`${API_BASE_URL}/dose-events/${eventId}/action`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(actionData),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to record dose action');
+  }
+  return res.json();
+}
+
+export async function fetchAdherence(patientId) {
+  const res = await fetch(`${API_BASE_URL}/patients/${patientId}/adherence`);
+  if (!res.ok) throw new Error('Failed to fetch adherence');
+  return res.json();
+}
+
+export async function fetchInventory(patientId) {
+  const res = await fetch(`${API_BASE_URL}/patients/${patientId}/inventory`);
+  if (!res.ok) throw new Error('Failed to fetch inventory');
+  return res.json();
+}
+
+export async function fetchAppointments(patientId) {
+  const res = await fetch(`${API_BASE_URL}/patients/${patientId}/appointments`);
+  if (!res.ok) throw new Error('Failed to fetch appointments');
+  return res.json();
+}
