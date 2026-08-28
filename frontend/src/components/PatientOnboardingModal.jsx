@@ -12,7 +12,7 @@ const INITIAL_FORM = {
   medical_history: '',
   condition_or_disease: 'Invasive Ductal Carcinoma',
   cancer_type: 'Stage IIA HER2+ Breast Cancer',
-  treatment_type: 'Adjuvant Chemotherapy (AC-T)',
+  treatment_type: 'Adjuvant treatment',
   caregiver_name: '',
   caregiver_email: '',
   caregiver_phone: '',
@@ -50,7 +50,7 @@ export default function PatientOnboardingModal({ isOpen, onClose, onSave, defaul
       medical_history: 'Hypertension (managed on Amlodipine 5mg), no known drug allergies.',
       condition_or_disease: 'Invasive Ductal Carcinoma',
       cancer_type: 'Stage IIA HER2-Positive Breast Cancer',
-      treatment_type: 'AC-T Chemotherapy Regimen + Trastuzumab',
+      treatment_type: 'Adjuvant treatment',
       caregiver_name: 'Mark Jenkins (Spouse)',
       caregiver_email: 'mark.jenkins@example.com',
       caregiver_phone: '+91 98765 43210',
@@ -221,14 +221,16 @@ export default function PatientOnboardingModal({ isOpen, onClose, onSave, defaul
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">Treatment Regimen</label>
-                <input
-                  type="text"
+                <select
                   name="treatment_type"
                   value={formData.treatment_type}
                   onChange={handleChange}
-                  placeholder="e.g. Adjuvant Chemotherapy"
                   className="w-full text-sm px-3 py-2 rounded-xl border border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
-                />
+                >
+                  <option value="Neoadjuvant treatment">Neoadjuvant treatment</option>
+                  <option value="Surgery">Surgery</option>
+                  <option value="Adjuvant treatment">Adjuvant treatment</option>
+                </select>
               </div>
               <div className="md:col-span-2">
                 <label className="block text-xs font-medium text-slate-700 mb-1">Medical History & Allergies</label>

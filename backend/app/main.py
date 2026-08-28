@@ -9,7 +9,25 @@ from app.api import api_router
 
 load_dotenv()
 
-# Initialize DB tables
+def _ensure_db_migrations():
+    """Ensure SQLite columns like patient_phone exist."""
+    import sqlite3
+    db_path = os.path.join(os.path.dirname(__file__), "..", "cancercare.db")
+    if os.path.exists(db_path):
+        try:
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            cursor.execute("PRAGMA table_info(patients)")
+            cols = [row[1] for row in cursor.fetchall()]
+            if cols and "patient_phone" not in cols:
+                cursor.execute("ALTER TABLE patients ADD COLUMN patient_phone VARCHAR(50) DEFAULT '+91 98765 12345'")
+                conn.commit()
+                print("[DB MIGRATION] Added missing patient_phone column to patients table.")
+            conn.close()
+        except Exception as e:
+            print(f"[DB MIGRATION NOTICE] {e}")
+
+_ensure_db_migrations()
 Base.metadata.create_all(bind=engine)
 
 
