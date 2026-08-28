@@ -109,7 +109,7 @@ export default function MedicationScheduleView({
                 </span>
               </div>
               <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-white/10 text-white/90 border border-white/15">
-                {activeLanguage === 'Tamil' ? 'நோயாளி செயல் பொத்தான்கள்' : 'Action Buttons Active (§6)'}
+                {activeLanguage === 'Tamil' ? 'நோயாளி செயல் பொத்தான்கள்' : 'Patient Action Buttons'}
               </span>
             </div>
 
@@ -238,21 +238,6 @@ export default function MedicationScheduleView({
                       </button>
                     </div>
 
-                    {/* Instant Telegram Caregiver Notification Trigger Button (§8 Demo) */}
-                    <div className="pt-1 flex items-center justify-between">
-                      <button
-                        onClick={() => handleTestEscalation(activeAlarmEvent.id)}
-                        id="test-telegram-btn"
-                        className="text-[11px] font-semibold text-sky-200 bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/30 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer"
-                      >
-                        <Send className="w-3.5 h-3.5 text-sky-300" />
-                        <span>⚡ Test Instant Caregiver Escalation (Telegram / In-App)</span>
-                      </button>
-                      <span className="text-[10px] text-slate-300">
-                        Simulates no-response escalation (§8)
-                      </span>
-                    </div>
-
                     {escalationStatus && (
                       <div
                         className={`p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 ${
@@ -285,7 +270,7 @@ export default function MedicationScheduleView({
             <div className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-emerald-600" />
               <h3 className="text-sm font-bold font-['Outfit'] text-slate-900">
-                Adherence Rate (§19)
+                Adherence Rate
               </h3>
             </div>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -321,7 +306,7 @@ export default function MedicationScheduleView({
             </div>
             <div>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-400/20 text-purple-200 border border-purple-300/30 inline-block mb-1">
-                CHEMOTHERAPY CLINIC APPOINTMENT (§15)
+                CHEMOTHERAPY CLINIC APPOINTMENT
               </span>
               <h4 className="text-sm font-bold">{appointments[0].treatment_type}</h4>
               <p className="text-xs text-purple-200">
@@ -440,76 +425,6 @@ export default function MedicationScheduleView({
         </div>
       </div>
 
-      {/* Today's Dose Events List */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-sky-600" />
-            <h3 className="text-sm font-bold font-['Outfit'] text-slate-900">
-              Today's Scheduled Medication Alarms
-            </h3>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          {doseEvents && doseEvents.length > 0 ? (
-            doseEvents.slice(0, 5).map((ev) => (
-              <div
-                key={ev.id}
-                className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between gap-3 text-xs"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-900">{ev.medication_name}</span>
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
-                        ev.status === 'taken'
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : ev.status === 'missed'
-                          ? 'bg-rose-100 text-rose-800'
-                          : 'bg-amber-100 text-amber-850'
-                      }`}
-                    >
-                      {ev.status.toUpperCase()}
-                    </span>
-                  </div>
-                  <div className="text-slate-500 text-[10px]">
-                    Scheduled: {new Date(ev.scheduled_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </div>
-                  {ev.support_notes && (
-                    <div className="text-[10px] text-slate-500 italic">
-                      💡 {ev.support_notes}
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  {(ev.status === 'scheduled' || ev.status === 'snoozed') ? (
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => onDoseAction(ev.id, { action: 'taken' })}
-                        className="px-2.5 py-1.5 font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg cursor-pointer"
-                      >
-                        Confirm Take
-                      </button>
-                      <button
-                        onClick={() => onDoseAction(ev.id, { action: 'snooze', snooze_minutes: 15 })}
-                        className="px-2 py-1.5 font-semibold text-slate-700 bg-slate-200 hover:bg-slate-300 rounded-lg cursor-pointer"
-                      >
-                        Snooze
-                      </button>
-                    </div>
-                  ) : (
-                    <span className="text-[10px] text-slate-400 font-medium">Completed</span>
-                  )}
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-xs text-slate-500">No scheduled medication alarms for today.</p>
-          )}
-        </div>
-      </div>
     </div>
   );
 }

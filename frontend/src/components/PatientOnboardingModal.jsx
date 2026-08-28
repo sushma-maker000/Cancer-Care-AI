@@ -254,7 +254,7 @@ export default function PatientOnboardingModal({ isOpen, onClose, onSave, defaul
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-              3. Caregiver & Safety Escalation (§8)
+              3. Caregiver & Safety Escalation
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>

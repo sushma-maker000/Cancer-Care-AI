@@ -5,8 +5,6 @@ export default function Header({
   activeLanguage,
   onLanguageChange,
   onOpenOnboarding,
-  onQuickLoadDemo,
-  loadingDemo,
   apiHealthy,
   isMobileView,
   onToggleLayoutView,
@@ -78,20 +76,6 @@ export default function Header({
             </button>
           </div>
 
-          {/* Quick Demo Loader */}
-          <button
-            id="quick-demo-patient-btn"
-            onClick={onQuickLoadDemo}
-            disabled={loadingDemo}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition-colors cursor-pointer"
-            title="Load Sarah Jenkins (Breast Cancer Demo Patient)"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-            <span className="hidden sm:inline">
-              {isTamil ? 'மாதிரி நோயாளி' : '1-Click Demo Patient'}
-            </span>
-            <span className="sm:hidden">Demo</span>
-          </button>
 
           {/* Layout Switcher Button */}
           <button

@@ -22,15 +22,7 @@ import {
   fetchAppointments,
 } from './services/api';
 import {
-  Layers,
   Sparkles,
-  Play,
-  RotateCcw,
-  Zap,
-  Home,
-  UploadCloud,
-  Calendar,
-  MessageSquare,
 } from 'lucide-react';
 
 export default function App() {
@@ -41,10 +33,6 @@ export default function App() {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [prescriptionData, setPrescriptionData] = useState(null);
   
-  // Mobile View Toggle & Navigation State
-  const [isMobileView, setIsMobileView] = useState(true);
-  const [activeTab, setActiveTab] = useState('schedule'); // default to schedule page
-
   // Regimen & Adherence State
   const [medications, setMedications] = useState([]);
   const [doseEvents, setDoseEvents] = useState([]);
@@ -53,7 +41,6 @@ export default function App() {
   const [appointments, setAppointments] = useState([]);
 
   const [loading, setLoading] = useState(true);
-  const [loadingDemo, setLoadingDemo] = useState(false);
   const [isProcessingRx, setIsProcessingRx] = useState(false);
   const [apiHealthy, setApiHealthy] = useState(true);
   const [statusMessage, setStatusMessage] = useState(null);
@@ -70,17 +57,7 @@ export default function App() {
 
       const patientList = await fetchPatients();
       setPatients(patientList);
-      if (patientList.length > 0) {
-        const p = patientList[0];
-        setActivePatient(p);
-        setActiveLanguage(p.preferred_language || 'English');
-        await refreshPatientData(p.id);
-      } else {
-        const demo = await seedSyntheticPatient('English');
-        setPatients([demo]);
-        setActivePatient(demo);
-        await refreshPatientData(demo.id);
-      }
+      // Do not auto-select any patient — user must create or select one explicitly
     } catch (err) {
       console.error('API Error:', err);
       setApiHealthy(false);
@@ -121,21 +98,6 @@ export default function App() {
     }
   };
 
-  const handleQuickLoadDemo = async () => {
-    try {
-      setLoadingDemo(true);
-      const demo = await seedSyntheticPatient(activeLanguage);
-      const list = await fetchPatients();
-      setPatients(list);
-      setActivePatient(demo);
-      await refreshPatientData(demo.id);
-      showToast('Loaded Sarah Jenkins synthetic demo profile!');
-    } catch (err) {
-      console.error('Demo loading failed:', err);
-    } finally {
-      setLoadingDemo(false);
-    }
-  };
 
   const handleSavePatient = async (formData) => {
     const created = await createPatient(formData);
@@ -186,11 +148,7 @@ export default function App() {
         activeLanguage={activeLanguage}
         onLanguageChange={handleLanguageChange}
         onOpenOnboarding={() => setIsOnboardingOpen(true)}
-        onQuickLoadDemo={handleQuickLoadDemo}
-        loadingDemo={loadingDemo}
         apiHealthy={apiHealthy}
-        isMobileView={isMobileView}
-        onToggleLayoutView={() => setIsMobileView(!isMobileView)}
       />
 
       {/* Floating Status Notification */}
@@ -201,138 +159,7 @@ export default function App() {
         </div>
       )}
 
-      {isMobileView ? (
-        /* ================= MOBILE VIEW CONTAINER ================= */
-        <div className="flex-1 flex flex-col items-center justify-center p-4">
-          <div className="w-full max-w-md bg-white border border-slate-200 rounded-[32px] shadow-2xl overflow-hidden flex flex-col h-[780px] relative">
-            
-            {/* Active Tab Screen Area */}
-            <div className="flex-1 overflow-y-auto p-4 pb-20 space-y-4">
-              
-              {/* Profile Tab Screen */}
-              {activeTab === 'profile' && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h1 className="text-xl font-bold font-['Outfit']">
-                      {activeLanguage === 'Tamil' ? 'நோயாளி சுயவிவரம்' : 'Patient Profile'}
-                    </h1>
-                    {patients.length > 1 && (
-                      <select
-                        value={activePatient?.id || ''}
-                        onChange={(e) => {
-                          const selected = patients.find((p) => p.id === Number(e.target.value));
-                          if (selected) {
-                            setActivePatient(selected);
-                            refreshPatientData(selected.id);
-                          }
-                        }}
-                        className="text-[11px] px-2 py-1 rounded bg-slate-100 text-slate-700 border border-slate-300 font-semibold"
-                      >
-                        {patients.map((p) => (
-                          <option key={p.id} value={p.id}>{p.name}</option>
-                        ))}
-                      </select>
-                    )}
-                  </div>
-                  <PatientProfileCard
-                    patient={activePatient}
-                    activeLanguage={activeLanguage}
-                    onEdit={() => setIsOnboardingOpen(true)}
-                  />
-                </div>
-              )}
-
-              {/* Upload Tab Screen */}
-              {activeTab === 'upload' && (
-                <div className="space-y-4">
-                  <h1 className="text-xl font-bold font-['Outfit']">
-                    {activeLanguage === 'Tamil' ? 'மருந்து சீட்டுப் பதிவேற்றம்' : 'Upload Prescription'}
-                  </h1>
-                  <PrescriptionSection
-                    patient={activePatient}
-                    activeLanguage={activeLanguage}
-                    onExtractionComplete={handleExtractionComplete}
-                    isProcessing={isProcessingRx}
-                    setIsProcessing={setIsProcessingRx}
-                  />
-                </div>
-              )}
-
-              {/* Schedule Tab Screen */}
-              {activeTab === 'schedule' && (
-                <div className="space-y-4">
-                  <h1 className="text-xl font-bold font-['Outfit']">
-                    {activeLanguage === 'Tamil' ? 'சிகிச்சை அட்டவணை' : 'Care Schedule'}
-                  </h1>
-                  <MedicationScheduleView
-                    medications={medications}
-                    doseEvents={doseEvents}
-                    adherence={adherence}
-                    inventory={inventory}
-                    appointments={appointments}
-                    onDoseAction={handleDoseAction}
-                    activeLanguage={activeLanguage}
-                  />
-                </div>
-              )}
-
-              {/* Chat Tab Screen */}
-              {activeTab === 'chat' && (
-                <div className="space-y-4 flex flex-col h-full">
-                  <AIChatbot patient={activePatient} activeLanguage={activeLanguage} />
-                </div>
-              )}
-
-            </div>
-
-            {/* Bottom Nav Bar */}
-            <div className="absolute bottom-0 inset-x-0 h-16 bg-white/95 backdrop-blur-md border-t border-slate-200 flex items-center justify-around px-4">
-              <button
-                onClick={() => setActiveTab('profile')}
-                className={`flex flex-col items-center gap-1 cursor-pointer transition-colors ${
-                  activeTab === 'profile' ? 'text-sky-600 font-semibold' : 'text-slate-400 hover:text-slate-600'
-                }`}
-              >
-                <Home className="w-5 h-5" />
-                <span className="text-[10px]">{activeLanguage === 'Tamil' ? 'சுயவிவரம்' : 'Profile'}</span>
-              </button>
-              
-              <button
-                onClick={() => setActiveTab('upload')}
-                className={`flex flex-col items-center gap-1 cursor-pointer transition-colors ${
-                  activeTab === 'upload' ? 'text-sky-600 font-semibold' : 'text-slate-400 hover:text-slate-600'
-                }`}
-              >
-                <UploadCloud className="w-5 h-5" />
-                <span className="text-[10px]">{activeLanguage === 'Tamil' ? 'பதிவேற்று' : 'Upload'}</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('schedule')}
-                className={`flex flex-col items-center gap-1 cursor-pointer transition-colors ${
-                  activeTab === 'schedule' ? 'text-sky-600 font-semibold' : 'text-slate-400 hover:text-slate-600'
-                }`}
-              >
-                <Calendar className="w-5 h-5" />
-                <span className="text-[10px]">{activeLanguage === 'Tamil' ? 'அட்டவணை' : 'Schedule'}</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('chat')}
-                className={`flex flex-col items-center gap-1 cursor-pointer transition-colors ${
-                  activeTab === 'chat' ? 'text-sky-600 font-semibold' : 'text-slate-400 hover:text-slate-600'
-                }`}
-              >
-                <MessageSquare className="w-5 h-5" />
-                <span className="text-[10px]">{activeLanguage === 'Tamil' ? 'உரையாடு' : 'AI Chat'}</span>
-              </button>
-            </div>
-
-          </div>
-        </div>
-      ) : (
-        /* ================= DESKTOP VIEW CONTAINER ================= */
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
           {/* Patient Profile Section */}
           <section>
             <div className="flex items-center justify-between mb-4">
@@ -415,14 +242,13 @@ export default function App() {
               </h2>
               <p className="text-xs text-slate-500">
                 {activeLanguage === 'Tamil'
-                  ? 'உங்கள் மருந்து வழிகாட்டிகள் மற்றும் NCI ஊட்டச்சத்து குறிப்புகள் ఆధారமாக பதிலளிக்கும்AI உதவி.'
+                  ? 'உங்கள் மருந்து வழிகாட்டிகள் மற்றும் NCI ஊட்டச்சத்து குறிப்புகள் ஆ஧ாரமாக பதிலளிக்கும் AI உதவி.'
                   : 'Grounded RAG chatbot with deterministic safety triage — sources cited from your drug monographs and NCI nutrition guidelines.'}
               </p>
             </div>
             <AIChatbot patient={activePatient} activeLanguage={activeLanguage} />
           </section>
         </main>
-      )}
 
       {/* Footer */}
       <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-500">

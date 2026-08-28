@@ -68,7 +68,7 @@ export default function MedicationConfirmationModal({
               <div className="flex items-center gap-2">
                 <h2 className="text-xl font-bold font-['Outfit']">Mandatory Patient Confirmation</h2>
                 <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-100 border border-emerald-300/30">
-                  Human-In-The-Loop (§4)
+                  Human-In-The-Loop
                 </span>
               </div>
               <p className="text-xs text-sky-100 mt-0.5">

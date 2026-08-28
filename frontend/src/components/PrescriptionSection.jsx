@@ -92,7 +92,7 @@ export default function PrescriptionSection({
             </div>
             <div>
               <h2 className="text-lg font-bold font-['Outfit'] text-slate-900">
-                {isTamil ? 'மருத்துவச்சீட்டு பதிவேற்றம் & பகுப்பாய்வு (§4)' : 'Prescription Ingestion & Extraction (§4)'}
+                {isTamil ? 'மருத்துவச்சீட்டு பதிவேற்றம் & பகுப்பாய்வு' : 'Prescription Ingestion & Extraction'}
               </h2>
               <p className="text-xs text-slate-500">
                 {isTamil

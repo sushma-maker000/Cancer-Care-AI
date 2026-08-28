@@ -15,8 +15,8 @@ export default function PatientProfileCard({ patient, onEdit, onSwitchPatient, a
         </h3>
         <p className="text-xs text-slate-500 max-w-md mx-auto mt-1 mb-4">
           {isTamil
-            ? 'தயவுசெய்து புதிய சுயவிவரத்தை உருவாக்கவும் அல்லது "1-Click Demo Patient" பொத்தானைப் பயன்படுத்தவும்.'
-            : 'Please create a new profile or use the "1-Click Demo Patient" button to start the cancer medication adherence workflow.'}
+            ? 'தயவுசெய்து புதிய சுயவிவரத்தை உருவாக்கவும்.'
+            : 'Please create a new patient profile using the "New Patient" button to start the cancer medication adherence workflow.'}
         </p>
       </div>
     );
@@ -25,7 +25,7 @@ export default function PatientProfileCard({ patient, onEdit, onSwitchPatient, a
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all hover:shadow-md">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-sky-950 to-indigo-950 p-6 text-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-slate-900 via-sky-950 to-indigo-950 p-4 sm:p-6 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-500 flex items-center justify-center text-white text-xl font-bold font-['Outfit'] shadow-lg shadow-sky-500/30 shrink-0">
             {patient.name.charAt(0)}
@@ -42,8 +42,7 @@ export default function PatientProfileCard({ patient, onEdit, onSwitchPatient, a
             </div>
             <p className="text-xs text-slate-300 mt-1 flex items-center gap-2 flex-wrap">
               <span>{patient.age} {isTamil ? 'வயது' : 'yrs'}</span>
-              <span>•</span>
-              <span>{patient.gender}</span>
+              {patient.gender && <><span>•</span><span>{patient.gender}</span></>}
               {patient.patient_phone && (
                 <>
                   <span>•</span>
@@ -53,10 +52,8 @@ export default function PatientProfileCard({ patient, onEdit, onSwitchPatient, a
                   </span>
                 </>
               )}
-              <span>•</span>
-              <span>{patient.smoking_status}</span>
-              <span>•</span>
-              <span>{isTamil ? 'மதுப்பழக்கம்:' : 'Alcohol:'} {patient.alcohol_consumption}</span>
+              {patient.smoking_status && <><span>•</span><span>{patient.smoking_status}</span></>}
+              {patient.alcohol_consumption && <><span>•</span><span>{isTamil ? 'மதுப்பழக்கம்:' : 'Alcohol:'} {patient.alcohol_consumption}</span></>}
             </p>
           </div>
         </div>
@@ -73,9 +70,9 @@ export default function PatientProfileCard({ patient, onEdit, onSwitchPatient, a
       </div>
 
       {/* Profile Details Grid */}
-      <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
+      <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
         {/* Col 1: Cancer & Regimen */}
-        <div className="space-y-3 p-4 rounded-xl bg-slate-50 border border-slate-100">
+        <div className="space-y-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
           <div className="flex items-center gap-2 text-slate-900 font-semibold">
             <Heart className="w-4 h-4 text-rose-500" />
             <span>{isTamil ? 'புற்றுநோய் கண்டறிதல்' : 'Oncology Diagnosis'}</span>
@@ -91,7 +88,7 @@ export default function PatientProfileCard({ patient, onEdit, onSwitchPatient, a
         </div>
 
         {/* Col 2: Medical History & Allergies */}
-        <div className="space-y-3 p-4 rounded-xl bg-slate-50 border border-slate-100">
+        <div className="space-y-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
           <div className="flex items-center gap-2 text-slate-900 font-semibold">
             <Activity className="w-4 h-4 text-sky-600" />
             <span>{isTamil ? 'மருத்துவ விவரங்கள்' : 'Medical Context'}</span>
@@ -105,15 +102,15 @@ export default function PatientProfileCard({ patient, onEdit, onSwitchPatient, a
         </div>
 
         {/* Col 3: Caregiver & Escalation Policy */}
-        <div className="space-y-3 p-4 rounded-xl bg-slate-50 border border-slate-100">
+        <div className="space-y-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
           <div className="flex items-center gap-2 text-slate-900 font-semibold">
             <Shield className="w-4 h-4 text-emerald-600" />
-            <span>{isTamil ? 'பராமரிப்பாளர் எச்சரிக்கை (§8)' : 'Caregiver Escalation (§8)'}</span>
+            <span>{isTamil ? 'பராமரிப்பாளர் எச்சரிக்கை' : 'Caregiver Escalation'}</span>
           </div>
           <div className="space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-slate-500">{isTamil ? 'பெயர்:' : 'Contact:'}</span>
-              <span className="font-semibold text-slate-800">{patient.caregiver_name || (isTamil ? 'குறிப்பிடப்படவில்லை' : 'Not assigned')}</span>
+            <div className="flex items-start justify-between gap-2">
+              <span className="text-slate-500 shrink-0">{isTamil ? 'பெயர்:' : 'Contact:'}</span>
+              <span className="font-semibold text-slate-800 text-right break-words">{patient.caregiver_name || (isTamil ? 'குறிப்பிடப்படவில்லை' : 'Not assigned')}</span>
             </div>
             {patient.caregiver_phone && (
               <div className="flex items-center justify-between">
