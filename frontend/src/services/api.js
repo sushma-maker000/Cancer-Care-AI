@@ -1,5 +1,25 @@
 const API_BASE_URL = '/api';
 
+const originalFetch = globalThis.fetch;
+const fetch = (resource, options = {}) => {
+  const { timeout = 10000 } = options;
+  const actualTimeout = (typeof resource === 'string' && resource.includes('/prescriptions/upload')) ? 30000 : timeout;
+  
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), actualTimeout);
+  
+  return originalFetch(resource, {
+    ...options,
+    signal: controller.signal
+  }).then(response => {
+    clearTimeout(id);
+    return response;
+  }).catch(error => {
+    clearTimeout(id);
+    throw error;
+  });
+};
+
 export async function fetchHealth() {
   const res = await fetch(`${API_BASE_URL}/health`);
   if (!res.ok) throw new Error('Failed to fetch health status');

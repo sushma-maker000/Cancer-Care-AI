@@ -101,12 +101,17 @@ export default function App() {
 
   const handleSavePatient = async (formData) => {
     const created = await createPatient(formData);
-    const list = await fetchPatients();
-    setPatients(list);
+    
     setActivePatient(created);
     setActiveLanguage(created.preferred_language || 'English');
-    await refreshPatientData(created.id);
     showToast(`Created profile for ${created.name}`);
+    
+    fetchPatients()
+      .then((list) => setPatients(list))
+      .catch((err) => console.error('Failed to fetch patient list:', err));
+      
+    refreshPatientData(created.id)
+      .catch((err) => console.error('Failed to refresh patient dashboard data:', err));
   };
 
   const handleExtractionComplete = (rxResponse) => {
