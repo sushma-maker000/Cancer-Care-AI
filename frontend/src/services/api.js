@@ -1,9 +1,16 @@
 const API_BASE_URL = '/api';
 
 const originalFetch = globalThis.fetch;
-const fetch = (resource, options = {}) => {
+globalThis.fetch = (resource, options = {}) => {
   const { timeout = 10000 } = options;
-  const actualTimeout = (typeof resource === 'string' && resource.includes('/prescriptions/upload')) ? 30000 : timeout;
+  let actualTimeout = timeout;
+  
+  const resourceStr = typeof resource === 'string' ? resource : '';
+  if (resourceStr.includes('/prescriptions/upload')) {
+    actualTimeout = 30000;
+  } else if (resourceStr.includes('/chat')) {
+    actualTimeout = 60000;
+  }
   
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), actualTimeout);

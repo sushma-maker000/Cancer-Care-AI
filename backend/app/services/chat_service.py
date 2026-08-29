@@ -70,11 +70,19 @@ def call_mistral_chat(
 ) -> str:
     """Call Mistral API for response generation."""
     api_key = os.getenv("MISTRAL_API_KEY", "")
-    model = os.getenv("MISTRAL_MODEL", "mistral-medium-latest")
+    model = os.getenv("MISTRAL_MODEL", "mistral-small-latest")
+
+    # Safe diagnostic logging (do not print the key itself)
+    print(f"[MISTRAL DIAGNOSTIC] API Key Configured: {bool(api_key)}")
+    if api_key:
+        masked_key = f"{api_key[:4]}...{api_key[-4:]}" if len(api_key) > 8 else "too_short"
+        print(f"[MISTRAL DIAGNOSTIC] Masked API Key: {masked_key}")
+    print(f"[MISTRAL DIAGNOSTIC] Using Model: {model}")
 
     if not api_key or api_key == "your_mistral_api_key_here":
+        print("[MISTRAL WARNING] MISTRAL_API_KEY is missing or contains the default placeholder.")
         return (
-            "I'm sorry — the AI service is temporarily unavailable. "
+            "I'm sorry — the AI service is temporarily unavailable (API Key not configured). "
             "Please consult your oncology team for any questions about your medications."
         )
 
@@ -100,11 +108,18 @@ def call_mistral_chat(
         if res.status_code == 200:
             return res.json()["choices"][0]["message"]["content"]
         else:
-            print(f"Mistral chat error {res.status_code}: {res.text[:300]}")
-            return _fallback_response(user_message)
+            error_msg = f"[MISTRAL API ERROR] Status {res.status_code}: {res.text[:300]}"
+            print(error_msg)
+            return (
+                f"I'm sorry — the AI service is temporarily unavailable (Mistral API Error {res.status_code}). "
+                "Please consult your oncology team for any questions about your medications."
+            )
     except Exception as e:
-        print(f"Mistral chat exception: {e}")
-        return _fallback_response(user_message)
+        print(f"[MISTRAL EXCEPTION] Failed to connect: {e}")
+        return (
+            "I'm sorry — the AI service is temporarily unavailable (Connection failed). "
+            "Please consult your oncology team for any questions about your medications."
+        )
 
 
 def _fallback_response(query: str) -> str:
