@@ -165,7 +165,7 @@ KNOWLEDGE_CHUNKS = [
         "id": "dexamethasone_002",
         "text": (
             "Common side effects of Dexamethasone (short-course, 3-day use as premedication) include: "
-            "increased appetite, difficulty sleeping (insomnia), mild mood changes, mild fluid retention, "
+            "dizziness, increased appetite, difficulty sleeping (insomnia), mild mood changes, mild fluid retention, "
             "elevated blood sugar (particularly relevant for diabetic patients), and stomach discomfort. "
             "These are generally temporary given the short 3-day course."
         ),
@@ -213,8 +213,8 @@ KNOWLEDGE_CHUNKS = [
     {
         "id": "aprepitant_002",
         "text": (
-            "Common side effects of Aprepitant include: fatigue, constipation, hiccups, headache, "
-            "decreased appetite, and diarrhea. These are generally mild. "
+            "Common side effects of Aprepitant include: fatigue, dizziness, lightheadedness, constipation, "
+            "hiccups, headache, decreased appetite, and diarrhea. These are generally mild. "
             "Serious side effects are rare but include allergic reactions — stop and seek medical care "
             "if you develop rash, difficulty breathing, or facial swelling after taking Aprepitant."
         ),
